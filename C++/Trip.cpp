@@ -55,6 +55,16 @@ std::vector<bool> TrainTrip::getTrainSeats() {
     return trainSeats;
 }
 
+//constructor
+TrainTrip::TrainTrip(char* src, char* dest, TIME departure, TIME arrival, int wagons) {
+    setSource(src);
+    setDestination(dest);
+    setTime(departure, arrival);
+    setWagons(wagons);
+    setTrainSeats();
+}
+
+
 int TrainTrip::emptySeats(){
     int empty = 0;
     for (int i = 0; i < trainSeats.size(); i++)

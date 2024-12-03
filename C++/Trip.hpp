@@ -25,6 +25,9 @@ private:
     int numOfWagons;
     std::vector<bool> trainSeats;
 public:
+    //constructor
+    TrainTrip(char* src, char* dest, TIME departure, TIME arrival, int wagons);
+
     //setters
     void setDestination(char *dest);
     void setSource(char *src);
@@ -41,6 +44,7 @@ public:
     std::vector<bool> getTrainSeats();
 
     int emptySeats();
+
     //display info
     void tripInfo();
 };
