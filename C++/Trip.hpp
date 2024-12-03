@@ -1,52 +1,55 @@
-#ifndef TRIP_h
+#ifndef TRIP_H
 #define TRIP_H
 
 #include <iostream>
-#include <cstring>
+#include <string>
 #include <vector>
 
 #define seatsInWagon 100
 
-typedef struct{
+typedef struct {
     int year;
     int month;
     int day;
-
     int hour;
     int minute;
-}TIME;
+} TIME;
 
-class TrainTrip{
+class TrainTrip {
 private:
-    char destination[50];
-    char source[50];
+    int tripID;
+    std::string destination;
+    std::string source;
     TIME departureTime;
     TIME arrivalTime;
     int numOfWagons;
     std::vector<bool> trainSeats;
-public:
-    //constructor
-    TrainTrip(char* src, char* dest, TIME departure, TIME arrival, int wagons);
 
-    //setters
-    void setDestination(char *dest);
-    void setSource(char *src);
+public:
+    // Constructor
+    TrainTrip(int id, const std::string& src, const std::string& dest, TIME departure, TIME arrival, int wagons);
+
+    // Setters
+    void setTripID(int id);
+    void setDestination(const std::string& dest);
+    void setSource(const std::string& src);
     void setTime(TIME departure, TIME arrival);
     void setWagons(int numWags);
     void setTrainSeats();
 
-    //getters
-    char *getDestination();
-    char *getSource();
-    TIME getDepartureTime();
-    TIME getArrivalTime();
-    int getNumOfWagons();
-    std::vector<bool> getTrainSeats();
+    // Getters
+    int getTripID() const;
+    std::string getDestination() const;
+    std::string getSource() const;
+    TIME getDepartureTime() const;
+    TIME getArrivalTime() const;
+    int getNumOfWagons() const;
+    std::vector<bool> getTrainSeats() const;
 
-    int emptySeats();
+    int emptySeats() const;
 
-    //display info
-    void tripInfo();
+    // Display info
+    void tripInfo() const;
 };
 
 #endif
