@@ -31,13 +31,10 @@ void TrainTrip::setWagons(int numWags)
     numOfWagons = numWags;
 }
 
-void TrainTrip::setTrainSeats()
+void TrainTrip::setEmpty(int empt, int fcempt)
 {
-    if (numOfWagons <= 0)
-    {
-        throw logic_error("Number of wagons is not set or invalid.");
-    }
-    trainSeats.resize(numOfWagons * seatsInWagon, false);
+    emptySeats = empt;
+    firstClassEmptySeats = fcempt;
 }
 
 // Getters
@@ -71,73 +68,45 @@ int TrainTrip::getNumOfWagons()
     return numOfWagons;
 }
 
-vector<bool> TrainTrip::getTrainSeats()
+int TrainTrip::getEmptySeats()
 {
-    return trainSeats;
+    return emptySeats;
+}
+
+int TrainTrip::getFirstSeats()
+{
+    return firstClassEmptySeats;
 }
 
 // Constructor
-TrainTrip::TrainTrip(int id, string src, string dest, TIME departure, TIME arrival, int wagons)
+TrainTrip::TrainTrip(int id, string src, string dest, TIME departure, TIME arrival, int wagons, int empt, int fcempt)
 {
     setTripID(id);
     setSource(src);
     setDestination(dest);
     setTime(departure, arrival);
     setWagons(wagons);
-    setTrainSeats();
+    setEmpty(empt, fcempt);
 }
 
 void TrainTrip::addBookedSeat(int seatType)
 {
-    int i = 0;
-    if (seatType == 2)
-        i += seatsInWagon;
-    for (; i < trainSeats.size(); i++)
-    {
-        if (!trainSeats[i])
-        {
-            trainSeats[i] = 1;
-            return;
-        }
-    }
-}
-
-int TrainTrip::emptySeats()
-{
-    int empty = 0;
-    for (int i = 0; i < seatsInWagon; i++)
-    {
-        if (!trainSeats[i])
-        {
-            empty++;
-        }
-    }
-    return empty;
-}
-
-// there is only one first class wagon
-int TrainTrip::firstClassEmptySeats()
-{
-    int empty = 0;
-    for (int i = 0; i < seatsInWagon; i++)
-    {
-        if (!trainSeats[i])
-        {
-            empty++;
-        }
-    }
-    return empty;
+    if (seatType == 1)
+        firstClassEmptySeats--;
+    else
+        emptySeats--;
 }
 
 // Display Information
 void TrainTrip::tripInfo()
 {
-    cout << "Trip Information:\n";
+    cout << "\n\n+++++++Trip Information++++++\n";
     cout << "Trip ID: " << tripID << "\n";
     cout << source << " --> " << destination << "\n";
     cout << "Departure Time: " << departureTime.hour << ":" << departureTime.minute << "\t"
          << departureTime.day << "/" << departureTime.month << "/" << departureTime.year << "\n";
     cout << "Arrival Time: " << arrivalTime.hour << ":" << arrivalTime.minute << "\t"
          << arrivalTime.day << "/" << arrivalTime.month << "/" << arrivalTime.year << "\n";
-    cout << "Total Empty Seats: " << emptySeats() << "\n";
+    cout << "Total Empty Seats: " << emptySeats << "\n";
+    cout << "Total First Class Empty Seats: " << firstClassEmptySeats << "\n\n";
 }

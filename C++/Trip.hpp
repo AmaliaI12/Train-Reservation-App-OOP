@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
 using namespace std;
 
 #define seatsInWagon 100
@@ -26,11 +25,13 @@ private:
     TIME departureTime;
     TIME arrivalTime;
     int numOfWagons;
-    vector<bool> trainSeats;
+    int emptySeats;
+    int firstClassEmptySeats;
 
 public:
     // Constructor
-    TrainTrip(int id, string src, string dest, TIME departure, TIME arrival, int wagons);
+    TrainTrip(int id, string src, string dest, TIME departure,
+              TIME arrival, int wagons, int empt, int fcempt);
 
     // Setters
     void setTripID(int id);
@@ -38,7 +39,7 @@ public:
     void setSource(string src);
     void setTime(TIME departure, TIME arrival);
     void setWagons(int numWags);
-    void setTrainSeats();
+    void setEmpty(int empt, int fcempt);
 
     // Getters
     int getTripID();
@@ -47,11 +48,10 @@ public:
     TIME getDepartureTime();
     TIME getArrivalTime();
     int getNumOfWagons();
-    vector<bool> getTrainSeats();
+    int getEmptySeats();
+    int getFirstSeats();
 
-    int emptySeats();
     void addBookedSeat(int classType);
-    int firstClassEmptySeats();
 
     // Display info
     void tripInfo();

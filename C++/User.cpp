@@ -5,41 +5,11 @@
 
 // CONSTRUCTOR
 User::User(vector<TrainTrip> *trips, unordered_map<string, string> *usrs,
-           string k, string file)
+           string file)
 {
     trainTrips = trips;
     users = usrs;
-    key = k;
     filename = file;
-}
-
-// CYPTING PASSWORD METHODS
-string User::generateKey(string str)
-{
-    string extendedKey = key;
-    int x = str.size();
-
-    for (size_t i = 0;; i++)
-    {
-        if (extendedKey.size() == x)
-        {
-            break;
-        }
-        extendedKey.push_back(key[i % key.size()]);
-    }
-    return extendedKey;
-}
-
-string User::cipherText(string str)
-{
-    string cipher_text;
-
-    for (size_t i = 0; i < str.size(); i++)
-    {
-        char x = (str[i] + key[i]) % 256;
-        cipher_text.push_back(x);
-    }
-    return cipher_text;
 }
 
 // USER LOGIN
@@ -59,7 +29,7 @@ bool User::userLogin()
 
         if ((*users).find(email) != (*users).end())
         {
-            if ((*users)[email] == cipherText(password))
+            if ((*users)[email] == cipherText(password, generateKey(password)))
             {
                 cout << "Logged in successfully!\n";
                 return true;
@@ -164,12 +134,13 @@ void User::userCreateAccount(string filename)
             }
             else
             {
-                (*users)[email] = cipherText(password);
+                cout<<"!!!!\n";
+                (*users)[email] = cipherText(password, generateKey(password));
                 // Append to CSV file
                 ofstream file(filename, ios::app); // Open in append mode
                 if (file.is_open())
                 {
-                    file << email << "," << cipherText(password) << "\n";
+                    file << email << "," << cipherText(password, generateKey(password)) << '\n';
                     file.close();
                     cout << "Account saved to file successfully.\n";
                 }
@@ -203,10 +174,11 @@ int User::searchTrip()
     if (searchMethod == 1)
     {
         string src, dest;
-        cout << "Source: ";
-        cin >> src;
-        cout << "Destination: ";
-        cin >> dest;
+        cout << "Enter source city: ";
+        cin.ignore();
+        getline(cin, src);
+        cout << "Enter destination city: ";
+        getline(cin, dest);
 
         for (int i = 0; i < (*trainTrips).size(); i++)
             if ((*trainTrips)[i].getSource() == src && (*trainTrips)[i].getDestination() == dest)
@@ -234,7 +206,7 @@ int User::searchTrip()
 
         if (dTime.day == dep.day && dTime.month == dep.month && dTime.year == dep.year &&
             aTime.day == arr.day && aTime.month == arr.month && aTime.year == arr.year &&
-            (*trainTrips)[i].emptySeats() > 0)
+            (*trainTrips)[i].getEmptySeats() > 0)
             (*trainTrips)[i].tripInfo();
     }
 
@@ -265,14 +237,14 @@ void User::bookTrip()
 
     if (c == 1)
     {
-        if ((*trainTrips)[tripIndex].firstClassEmptySeats() > 0)
+        if ((*trainTrips)[tripIndex].getFirstSeats() > 0)
         {
             (*trainTrips)[tripIndex].addBookedSeat(c);
         }
     }
     else
     {
-        if ((*trainTrips)[tripIndex].emptySeats() > 0)
+        if ((*trainTrips)[tripIndex].getEmptySeats() > 0)
         {
             (*trainTrips)[tripIndex].addBookedSeat(c);
         }

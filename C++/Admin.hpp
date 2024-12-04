@@ -6,6 +6,12 @@
 #include <cstring>
 #include <vector>
 #include <unordered_map>
+#include <fstream>
+
+
+/*Realizez ca nu este deloc sigur sa pastrez aici cheia :(*/
+#define  KEY "PHQAGILCX"
+#define keySize 9
 
 class Admin
 {
@@ -14,28 +20,28 @@ private:
     std::unordered_map<string, string> *users;
     string adminEmail;
     string adminPassword;
-    string key;
+    string outFile;
 
 public:
     // constructor
     Admin(std::vector<TrainTrip> *trips, std::unordered_map<string, string> *usrs,
-          string k, string mail, string pswrd);
+          string mail, string pswrd, string out);
 
     // crypting methods
-    string generateKey(string str);
-    string cipherText(string str);
 
     // admin login
     bool adminLogin();
 
     // admin operations
-    void addTrip();
+    void addTrip(string outFile);
     int searchTrip();
-    void deleteTrip(int tripID);
+    void deleteTrip();
 };
 
+string generateKey(string str);
+string cipherText(string str, string extendedkey);
 bool isValidDate(int year, int month, int day);
-bool isValidCityName(const string &city);
+bool isValidCityName(string city);
 bool isValidEmail(string email);
 
 #endif

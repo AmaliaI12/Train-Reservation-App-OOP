@@ -1,29 +1,79 @@
 #include "Admin.hpp"
 #include <regex>
 
+// CRYPTING PASSWORD METHODS
+string generateKey(string str)
+{
+    string extendedKey = KEY;
+    int x = str.size();
+    for (size_t i = 0;; i++)
+    {
+        if (extendedKey.size() == x)
+        {
+            break;
+        }
+        extendedKey.push_back(KEY[i % keySize]);
+    }
+    return extendedKey;
+}
+
+string cipherText(string str, string extendedKey)
+{
+    string cipher_text;
+    for (size_t i = 0; i < str.size(); i++)
+    {
+        char x = (str[i] + extendedKey[i]) % 256;
+        cipher_text.push_back(x);
+    }
+    return cipher_text;
+}
+
 // CONSTRUCTOR
 Admin::Admin(vector<TrainTrip> *trips, unordered_map<string, string> *usrs,
-             string k, string mail, string pswrd)
+             string mail, string pswrd, string file)
 {
     trainTrips = trips;
     users = usrs;
-    key = generateKey(k);
     adminEmail = mail;
-    adminPassword = cipherText(adminPassword);
+    adminPassword = pswrd;
+    outFile = file;
 }
 
-// TODO: upgrade valid date function with cases for months
+
 // ADMIN OPERATIONS
 bool isValidDate(int year, int month, int day)
 {
     if (month < 1 || month > 12)
         return false;
-    if (day < 1 || day > 31)
-        return false;
+
+    if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12)
+    {
+        if (day < 1 || day > 31)
+            return false;
+    }
+    else if (month == 4 || month == 6 || month == 9 || month == 11)
+    {
+        if (day < 1 || day > 30)
+            return false;
+    }
+    else if (month == 2)
+    {
+        if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+        {
+            if (day < 1 || day > 29)
+                return false;
+        }
+        else
+        {
+            if (day < 1 || day > 28)
+                return false;
+        }
+    }
+
     return true;
 }
 
-bool isValidCityName(const string &city)
+bool isValidCityName(string city)
 {
     for (char c : city)
     {
@@ -35,7 +85,7 @@ bool isValidCityName(const string &city)
     return true;
 }
 
-void Admin::addTrip()
+void Admin::addTrip(string outFile)
 {
     int tripID;
     string source;
@@ -46,9 +96,9 @@ void Admin::addTrip()
 
     try
     {
-
         cout << "Enter trip ID: ";
         cin >> tripID;
+
         if (cin.fail())
         {
             throw invalid_argument("Invalid input for trip ID. Please enter an integer.");
@@ -83,8 +133,6 @@ void Admin::addTrip()
             throw invalid_argument("Invalid arrival date. Please enter a valid date.");
         }
 
-        // TODO: Check if departure date is in the past
-
         cout << "Enter number of wagons: ";
         cin >> numOfWagons;
         if (numOfWagons <= 0)
@@ -92,8 +140,28 @@ void Admin::addTrip()
             throw invalid_argument("Number of wagons must be positive.");
         }
 
-        TrainTrip newTrip(tripID, source.c_str(), destination.c_str(), departureTime, arrivalTime, numOfWagons);
+        int empt, fcempt;
+
+        cout << "Enter number of empty seats: ";
+        cin >> empt;
+
+        cout << "Enter number of first class empty seats: ";
+        cin >> fcempt;
+        
+
+        TrainTrip newTrip(tripID, source, destination, departureTime, arrivalTime, numOfWagons, empt, fcempt);
         trainTrips->push_back(newTrip);
+
+        ofstream file(outFile, ios::app); 
+        file << tripID << ","
+                << source << ","
+                << destination << ","
+                << departureTime.year << " " << departureTime.month << " " << departureTime.day << " "
+                << departureTime.hour << " " << departureTime.minute << ","
+                << arrivalTime.year << " " << arrivalTime.month << " " << arrivalTime.day << " "
+                << arrivalTime.hour << " " << arrivalTime.minute << ","
+                << numOfWagons << "\n";
+        file.close();
         cout << "Trip added successfully.\n";
     }
     catch (const invalid_argument &e)
@@ -110,6 +178,7 @@ int Admin::searchTrip()
     int searchMethod;
     cout << "Pick one (1/2): ";
     cin >> searchMethod;
+    getchar();
 
     if (searchMethod != 1 && searchMethod != 2)
         return -1;
@@ -117,10 +186,11 @@ int Admin::searchTrip()
     if (searchMethod == 1)
     {
         string src, dest;
-        cout << "Source: ";
-        cin >> src;
-        cout << "Destination: ";
-        cin >> dest;
+        cout << "Enter source city: ";
+        cin.ignore();
+        getline(cin, src);
+        cout << "Enter destination city: ";
+        getline(cin, dest);
 
         for (int i = 0; i < (*trainTrips).size(); i++)
             if ((*trainTrips)[i].getSource() == src && (*trainTrips)[i].getDestination() == dest)
@@ -158,7 +228,7 @@ int Admin::searchTrip()
     return deletedTripId;
 }
 
-void Admin::deleteTrip(int tripID)
+void Admin::deleteTrip()
 {
     int delID = searchTrip();
 
@@ -170,43 +240,15 @@ void Admin::deleteTrip(int tripID)
 
     for (int i = 0; i < (*trainTrips).size(); i++)
     {
-        if ((*trainTrips)[i].getTripID() == tripID)
+        if ((*trainTrips)[i].getTripID() == delID)
         {
             trainTrips->erase(trainTrips->begin() + i);
-            cout << "Trip with ID " << tripID << " has been successfully deleted.\n";
+            cout << "Trip with ID " << delID << " has been successfully deleted.\n";
             return;
         }
     }
 }
 
-// CRYPTING PASSWORD METHODS
-string Admin::generateKey(string str)
-{
-    string extendedKey = key;
-    int x = str.size();
-
-    for (size_t i = 0;; i++)
-    {
-        if (extendedKey.size() == x)
-        {
-            break;
-        }
-        extendedKey.push_back(key[i % key.size()]);
-    }
-    return extendedKey;
-}
-
-string Admin::cipherText(string str)
-{
-    string cipher_text;
-
-    for (size_t i = 0; i < str.size(); i++)
-    {
-        char x = (str[i] + key[i]) % 256;
-        cipher_text.push_back(x);
-    }
-    return cipher_text;
-}
 
 bool isValidEmail(string email)
 {
@@ -230,7 +272,7 @@ bool Admin::adminLogin()
         if (!isValidEmail(email))
             throw invalid_argument("Invalid email");
 
-        if (email == adminEmail && adminPassword == cipherText(password))
+        if (email == adminEmail && adminPassword == cipherText(password, generateKey(password)))
         {
             cout << "Logged in successfully!\n";
             return 1;
