@@ -8,24 +8,25 @@
 #include <vector>
 #include <unordered_map>
 
-class User{
+class User
+{
 private:
-    std::vector<TrainTrip> *trainTrips;
-    std::unordered_map<std::string, std::string> *users;
-    std::string key;
-    std::string filename;
-public:
-    //constructor
-    User(std::vector<TrainTrip>* trips, std::unordered_map<std::string, std::string> *usrs, 
-        std::string key, std::string file);
+    vector<TrainTrip> *trainTrips;
+    unordered_map<string, string> *users;
+    string key;
+    string filename;
 
-    std::string generateKey(std::string str);
-    std::string cipherText(std::string str);
+public:
+    // constructor
+    User(vector<TrainTrip> *trips, unordered_map<string, string> *usrs,
+         string key, string file);
+
+    string generateKey(string str);
+    string cipherText(string str);
     bool userLogin();
-    void userCreateAccount(std::string filename);
+    void userCreateAccount(string filename);
     int searchTrip();
     void bookTrip();
 };
 
 #endif
-

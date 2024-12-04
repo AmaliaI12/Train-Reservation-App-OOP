@@ -4,10 +4,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
+using namespace std;
 
 #define seatsInWagon 100
 
-typedef struct {
+typedef struct
+{
     int year;
     int month;
     int day;
@@ -15,36 +17,37 @@ typedef struct {
     int minute;
 } TIME;
 
-class TrainTrip {
+class TrainTrip
+{
 private:
     int tripID;
-    std::string destination;
-    std::string source;
+    string destination;
+    string source;
     TIME departureTime;
     TIME arrivalTime;
     int numOfWagons;
-    std::vector<bool> trainSeats;
+    vector<bool> trainSeats;
 
 public:
     // Constructor
-    TrainTrip(int id, std::string src, std::string dest, TIME departure, TIME arrival, int wagons);
+    TrainTrip(int id, string src, string dest, TIME departure, TIME arrival, int wagons);
 
     // Setters
     void setTripID(int id);
-    void setDestination(std::string dest);
-    void setSource(std::string src);
+    void setDestination(string dest);
+    void setSource(string src);
     void setTime(TIME departure, TIME arrival);
     void setWagons(int numWags);
     void setTrainSeats();
 
     // Getters
     int getTripID();
-    std::string getDestination();
-    std::string getSource();
+    string getDestination();
+    string getSource();
     TIME getDepartureTime();
     TIME getArrivalTime();
     int getNumOfWagons();
-    std::vector<bool> getTrainSeats();
+    vector<bool> getTrainSeats();
 
     int emptySeats();
     void addBookedSeat(int classType);
