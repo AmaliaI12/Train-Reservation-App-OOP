@@ -1,7 +1,8 @@
 #include "Admin.hpp"
 #include <regex>
+#include <ctime>
 
-// CRYPTING PASSWORD METHODS
+// crypting methods
 string generateKey(string str)
 {
     string extendedKey = KEY;
@@ -28,7 +29,7 @@ string cipherText(string str, string extendedKey)
     return cipher_text;
 }
 
-// CONSTRUCTOR
+// constructor
 Admin::Admin(vector<TrainTrip> *trips, unordered_map<string, string> *usrs,
              string mail, string pswrd, string file)
 {
@@ -40,7 +41,7 @@ Admin::Admin(vector<TrainTrip> *trips, unordered_map<string, string> *usrs,
 }
 
 
-// ADMIN OPERATIONS
+// check functions
 bool isValidDate(int year, int month, int day)
 {
     if (month < 1 || month > 12)
@@ -85,6 +86,64 @@ bool isValidCityName(string city)
     return true;
 }
 
+bool isValidID(int id)
+{
+    for (int i = 0 ; i < (*trainTrips).size(); i++) {
+        if((*trainTrips)[i].tripID == id)
+            return false;
+    }
+    return true;
+}
+
+bool isFutureDate(TIME date) {
+    time_t now = time(nullptr);
+    tm *currentTime = localtime(&now);
+
+    int currentYear = currentTime->tm_year + 1900;
+    int currentMonth = currentTime->tm_mon + 1;
+    int currentDay = currentTime->tm_mday;
+    int currentHour = currentTime->tm_hour;
+    int currentMinute = currentTime->tm_min;
+
+    if (date.year > currentYear) {
+        return true;
+    } else if (date.year < currentYear) {
+        return false;
+    }
+
+    if (date.month > currentMonth) {
+        return true;
+    } else if (date.month < currentMonth) {
+        return false;
+    }
+
+    if (date.day > currentDay) {
+        return true;
+    } else if (date.day < currentDay) {
+        return false;
+    }
+
+    if (date.hour > currentHour) {
+        return true;
+    } else if (date.hour < currentHour) {
+        return false;
+    }
+
+    if (date.minute > currentMinute) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool isValidEmail(string email)
+{
+    const regex emailPattern(R"(^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$)");
+
+    return regex_match(email, emailPattern);
+}
+
+// admin operations
 void Admin::addTrip(string outFile)
 {
     int tripID;
@@ -99,9 +158,9 @@ void Admin::addTrip(string outFile)
         cout << "Enter trip ID: ";
         cin >> tripID;
 
-        if (cin.fail())
+        if (cin.fail() || !isValidId(tripID))
         {
-            throw invalid_argument("Invalid input for trip ID. Please enter an integer.");
+            throw invalid_argument("Invalid input for trip ID. ID must be an unique integer.");
         }
 
         cout << "Enter source city: ";
@@ -121,14 +180,16 @@ void Admin::addTrip(string outFile)
 
         cout << "Enter departure time (hour minute day month year ): ";
         cin >> departureTime.hour >> departureTime.minute >> departureTime.day >> departureTime.month >> departureTime.year;
-        if (cin.fail() || !isValidDate(departureTime.year, departureTime.month, departureTime.day))
+        if (cin.fail() || !isValidDate(departureTime.year, departureTime.month, departureTime.day) ||
+            !isFutureDate(departureTime))
         {
             throw invalid_argument("Invalid departure date. Please enter a valid date.");
         }
 
         cout << "Enter arrival time (hour minute day month year): ";
         cin >> arrivalTime.hour >> arrivalTime.minute >> arrivalTime.day >> arrivalTime.month >> arrivalTime.year;
-        if (cin.fail() || !isValidDate(arrivalTime.year, arrivalTime.month, arrivalTime.day))
+        if (cin.fail() || !isValidDate(arrivalTime.year, arrivalTime.month, arrivalTime.day) ||
+            !isFutureDate(arrivalTime))
         {
             throw invalid_argument("Invalid arrival date. Please enter a valid date.");
         }
@@ -144,9 +205,17 @@ void Admin::addTrip(string outFile)
 
         cout << "Enter number of empty seats: ";
         cin >> empt;
+        if (empt < 0)
+        {
+            throw invalid_argument("Number of empty seats must be positive.");
+        }
 
         cout << "Enter number of first class empty seats: ";
         cin >> fcempt;
+        if (fcempt < 0)
+        {
+            throw invalid_argument("Number of first class empty seats must be positive.");
+        }
         
 
         TrainTrip newTrip(tripID, source, destination, departureTime, arrivalTime, numOfWagons, empt, fcempt);
@@ -172,17 +241,18 @@ void Admin::addTrip(string outFile)
 
 int Admin::searchTrip()
 {
-    cout << "How do you want to search the trip you want to delete?\n";
+    cout << "How do you want to search the trip?\n";
     cout << "Options: [1] By route\t [2]By departure date\n";
 
     int searchMethod;
     cout << "Pick one (1/2): ";
     cin >> searchMethod;
-    getchar();
 
     if (searchMethod != 1 && searchMethod != 2)
+    {   
+        cout << "Invalid input. Please try again\n";
         return -1;
-
+    }
     if (searchMethod == 1)
     {
         string src, dest;
@@ -195,8 +265,8 @@ int Admin::searchTrip()
         for (int i = 0; i < (*trainTrips).size(); i++)
             if ((*trainTrips)[i].getSource() == src && (*trainTrips)[i].getDestination() == dest)
                 (*trainTrips)[i].tripInfo();
-
-        cout << "\n\nWhat trip do you want to delete? (insert the tripID or -1 if you want to abort): ";
+        
+        cout << "What trip do you want to delete? (insert the tripID or -1 if you want to abort): ";
 
         int deletedTripId;
         cin >> deletedTripId;
@@ -217,7 +287,8 @@ int Admin::searchTrip()
         TIME aTime = (*trainTrips)[i].getArrivalTime();
 
         if (dTime.day == dep.day && dTime.month == dep.month && dTime.year == dep.year &&
-            aTime.day == arr.day && aTime.month == arr.month && aTime.year == arr.year)
+            aTime.day == arr.day && aTime.month == arr.month && aTime.year == arr.year &&
+            (*trainTrips)[i].getEmptySeats() > 0)
             (*trainTrips)[i].tripInfo();
     }
 
@@ -249,15 +320,7 @@ void Admin::deleteTrip()
     }
 }
 
-
-bool isValidEmail(string email)
-{
-    const regex emailPattern(R"(^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$)");
-
-    return regex_match(email, emailPattern);
-}
-
-// ADMIN LOGIN
+// admin login
 bool Admin::adminLogin()
 {
     string email;

@@ -17,12 +17,16 @@ private:
 
 public:
     // constructor
-    User(vector<TrainTrip> *trips, unordered_map<string, string> *usrs,
-         string file);
+    User(vector<TrainTrip> *trips, unordered_map<string, string> *usrs, string file);
 
+    //user login
     bool userLogin();
+
+    //user create account
     void userCreateAccount(string filename);
-    int searchTrip();
+
+    //user operations
+    void searchTrip();
     void bookTrip();
 };
 
