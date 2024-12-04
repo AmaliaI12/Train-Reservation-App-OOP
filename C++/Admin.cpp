@@ -1,18 +1,25 @@
 #include "Admin.hpp"
+#include <regex>
 
-Admin::Admin(std::vector<TrainTrip>* trips){
+//CONSTRUCTOR
+Admin::Admin(std::vector<TrainTrip>* trips, std::unordered_map<std::string, std::string> *usrs, 
+            std::string k, std::string mail, std::string pswrd){
     trainTrips = trips;
+    users = usrs;
+    key = generateKey(k);
+    adminEmail = mail;
+    adminPassword = cipherText(adminPassword);
 }
 
 //TODO: upgrade valid date function with cases for months
-bool isValidDate(int year, int month, int day) {
+//ADMIN OPERATIONS
+bool isValidDate(int year, int month, int day){
     if (month < 1 || month > 12) return false;
     if (day < 1 || day > 31) return false;
     return true;
 }
 
-
-bool isValidCityName(const std::string& city) {
+bool isValidCityName(const std::string& city){
     for (char c : city) {
         if (std::isalpha(c) == 0 && c != ' ') {
             return false;
@@ -21,7 +28,7 @@ bool isValidCityName(const std::string& city) {
     return true;
 }
 
-void Admin::addTrip() {
+void Admin::addTrip(){
     int tripID;
     std::string source;
     std::string destination;
@@ -132,7 +139,7 @@ int Admin::searchTrip(){
     return deletedTripId;
 }
 
-void Admin::deleteTrip(int tripID) {
+void Admin::deleteTrip(int tripID){
     int delID = searchTrip();
 
     if (delID == -1) {
@@ -147,5 +154,61 @@ void Admin::deleteTrip(int tripID) {
             return;
     }
 }
+}
 
-//TODO: admin login encripteaza parola si cauta in hashmap cu cheia username
+//CRYPTING PASSWORD METHODS
+std::string Admin::generateKey(std::string str) {
+    std::string extendedKey = key;
+    int x = str.size();
+
+    for (size_t i = 0;; i++) {
+        if (extendedKey.size() == x) {
+            break;
+        }
+        extendedKey.push_back(key[i % key.size()]);
+    }
+    return extendedKey;
+}
+
+std::string Admin::cipherText(std::string str) {
+    std::string cipher_text;
+
+    for (size_t i = 0; i < str.size(); i++) {
+        char x = (str[i] + key[i]) % 256;
+        cipher_text.push_back(x);
+    }
+    return cipher_text;
+}
+
+
+bool isValidEmail(std::string email) {
+    const std::regex emailPattern(R"(^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$)");
+
+    return std::regex_match(email, emailPattern);
+}
+
+//ADMIN LOGIN
+bool Admin::adminLogin(){
+    std::string email;
+    std::string password;
+    try {
+        std::cout << "Enter your email: ";
+        std::getline(std::cin, email);
+        std::cout << "Enter your password: ";
+        std::getline(std::cin, password);
+
+        if (!isValidEmail(email))
+            throw std::invalid_argument("Invalid email");
+
+        if (email == adminEmail && adminPassword == cipherText(password)) {
+                    std::cout << "Logged in successfully!\n";
+                    return 1;
+        } else {
+            throw std::invalid_argument("Admin login information is not correct.\n");
+        }
+    } catch (const std::invalid_argument& e) {
+            std::cerr << "Error: " << e.what() << "\n";
+            return 0;
+    }
+    return 0;
+}

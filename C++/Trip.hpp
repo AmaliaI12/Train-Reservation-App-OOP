@@ -27,29 +27,31 @@ private:
 
 public:
     // Constructor
-    TrainTrip(int id, const std::string& src, const std::string& dest, TIME departure, TIME arrival, int wagons);
+    TrainTrip(int id, std::string src, std::string dest, TIME departure, TIME arrival, int wagons);
 
     // Setters
     void setTripID(int id);
-    void setDestination(const std::string& dest);
-    void setSource(const std::string& src);
+    void setDestination(std::string dest);
+    void setSource(std::string src);
     void setTime(TIME departure, TIME arrival);
     void setWagons(int numWags);
     void setTrainSeats();
 
     // Getters
-    int getTripID() const;
-    std::string getDestination() const;
-    std::string getSource() const;
-    TIME getDepartureTime() const;
-    TIME getArrivalTime() const;
-    int getNumOfWagons() const;
-    std::vector<bool> getTrainSeats() const;
+    int getTripID();
+    std::string getDestination();
+    std::string getSource();
+    TIME getDepartureTime();
+    TIME getArrivalTime();
+    int getNumOfWagons();
+    std::vector<bool> getTrainSeats();
 
-    int emptySeats() const;
+    int emptySeats();
+    void addBookedSeat(int classType);
+    int firstClassEmptySeats();
 
     // Display info
-    void tripInfo() const;
+    void tripInfo();
 };
 
 #endif

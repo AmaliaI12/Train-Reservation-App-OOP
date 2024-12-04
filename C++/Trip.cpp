@@ -5,11 +5,11 @@ void TrainTrip::setTripID(int id) {
     tripID = id;
 }
 
-void TrainTrip::setDestination(const std::string& dest) {
+void TrainTrip::setDestination(std::string dest) {
     destination = dest;
 }
 
-void TrainTrip::setSource(const std::string& src) {
+void TrainTrip::setSource(std::string src) {
     source = src;
 }
 
@@ -18,14 +18,14 @@ void TrainTrip::setTime(TIME departure, TIME arrival) {
     arrivalTime = arrival;
 }
 
-void TrainTrip::setWagons(int numWags) {
+void TrainTrip::setWagons(int numWags){
     if (numWags <= 0) {
         throw std::invalid_argument("Number of wagons must be positive.");
     }
     numOfWagons = numWags;
 }
 
-void TrainTrip::setTrainSeats() {
+void TrainTrip::setTrainSeats(){
     if (numOfWagons <= 0) {
         throw std::logic_error("Number of wagons is not set or invalid.");
     }
@@ -33,36 +33,36 @@ void TrainTrip::setTrainSeats() {
 }
 
 // Getters
-int TrainTrip::getTripID() const {
+int TrainTrip::getTripID(){
     return tripID;
 }
 
-std::string TrainTrip::getDestination() const {
+std::string TrainTrip::getDestination(){
     return destination;
 }
 
-std::string TrainTrip::getSource() const {
+std::string TrainTrip::getSource(){
     return source;
 }
 
-TIME TrainTrip::getDepartureTime() const {
+TIME TrainTrip::getDepartureTime(){
     return departureTime;
 }
 
-TIME TrainTrip::getArrivalTime() const {
+TIME TrainTrip::getArrivalTime(){
     return arrivalTime;
 }
 
-int TrainTrip::getNumOfWagons() const {
+int TrainTrip::getNumOfWagons(){
     return numOfWagons;
 }
 
-std::vector<bool> TrainTrip::getTrainSeats() const {
+std::vector<bool> TrainTrip::getTrainSeats(){
     return trainSeats;
 }
 
 // Constructor
-TrainTrip::TrainTrip(int id, const std::string& src, const std::string& dest, TIME departure, TIME arrival, int wagons) {
+TrainTrip::TrainTrip(int id, std::string src, std::string dest, TIME departure, TIME arrival, int wagons) {
     setTripID(id);
     setSource(src);
     setDestination(dest);
@@ -71,18 +71,42 @@ TrainTrip::TrainTrip(int id, const std::string& src, const std::string& dest, TI
     setTrainSeats();
 }
 
-int TrainTrip::emptySeats() const {
+void TrainTrip::addBookedSeat(int seatType){
+    int i = 0;
+    if (seatType == 2) 
+        i += seatsInWagon;
+    for (; i < trainSeats.size() ; i++) {
+        if(!trainSeats[i]){
+            trainSeats[i] = 1;
+            return;
+        }
+    }
+}
+
+int TrainTrip::emptySeats(){
     int empty = 0;
-    for (bool seat : trainSeats) {
-        if (!seat) {
+    for (int i = 0 ; i < seatsInWagon ; i++) {
+        if (!trainSeats[i]) {
             empty++;
         }
     }
     return empty;
 }
 
+//there is only one first class wagon
+int TrainTrip::firstClassEmptySeats(){
+    int empty = 0;
+    for (int i = 0 ; i < seatsInWagon ; i++) {
+        if (!trainSeats[i]) {
+            empty++;
+        }
+    }
+    return empty;
+}
+
+
 // Display Information
-void TrainTrip::tripInfo() const {
+void TrainTrip::tripInfo() {
     std::cout << "Trip Information:\n";
     std::cout << "Trip ID: " << tripID << "\n"; 
     std::cout << source << " --> " << destination << "\n";
