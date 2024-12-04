@@ -134,7 +134,6 @@ void User::userCreateAccount(string filename)
             }
             else
             {
-                cout<<"!!!!\n";
                 (*users)[email] = cipherText(password, generateKey(password));
                 // Append to CSV file
                 ofstream file(filename, ios::app); // Open in append mode
