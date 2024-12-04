@@ -172,20 +172,20 @@ int main()
     char answer;
     do
     {
-        cout << "How would you like to log in?\tAdmin [1] / User [2]: ";
+        cout << "How would you like to log in?  Admin [1] / User [2]: ";
         int userType;
         cin >> userType;
         getchar();
 
         if (userType != 1 && userType != 2)
         {
-            char cont;
+            char choise;
             do
             {
                 cout << "Incorrect input. Do you wish to try again? (y/n): ";
 
-                cin >> cont;
-                if (cont == 'n' || cont == 'N')
+                cin >> choise;
+                if (choise == 'n' || choise == 'N')
                 {
                     cout << "Goodbye!";
                     return 0;
@@ -196,28 +196,30 @@ int main()
                 cin >> a;
                 userType = a;
                 if (userType == 1 || userType == 2)
-                    cont = 'n';
-            } while (cont == 'y' || cont == 'Y');
+                    choise = 'n';
+            } while (choise == 'y' || choise == 'Y');
         }
+
         if (userType == 1)
         {
             cout << "----------- ADMIN LOGIN PAGE------------\n";
             Admin admin(&tripDatabase, &userDatabase, admEmail, admPswrd, ".\\dataBases\\trainTripsDataBase.csv");
-            char c;
+            char choise;
             do
             {
                 bool loggedin = admin.adminLogin();
                 if (loggedin == 1)
                     break;
                 cout << "Do you want to try logging in again? y/n ";
-                cin >> c;
+                cin >> choise;
+                
                 getchar();
-                if (c == 'n' || c == 'N')
+                if (choise == 'n')
                 {
                     cout << "Goodbye!";
                     return 0;
                 }
-            } while (c == 'y');
+            } while (choise == 'y');
 
             char ans;
             do
@@ -247,6 +249,7 @@ int main()
             cout << "Do you have an account? (y/n) ";
             char hasAccount;
             cin >> hasAccount;
+
             getchar();
             if (hasAccount == 'y')
             {
@@ -288,6 +291,7 @@ int main()
         }
 
         updateTrainDataBase(".\\dataBases\\trainTripsDataBase.csv");
+        tripDatabase.clear();
         importTrainTrips(".\\dataBases\\trainTripsDataBase.csv");
         cout << "You are now logged out. Do you want to log in again? y/n: ";
         cin >> answer;

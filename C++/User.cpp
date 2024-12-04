@@ -3,16 +3,15 @@
 #include <regex>
 #include <fstream>
 
-// CONSTRUCTOR
-User::User(vector<TrainTrip> *trips, unordered_map<string, string> *usrs,
-           string file)
+// constructor
+User::User(vector<TrainTrip> *trips, unordered_map<string, string> *usrs, string file)
 {
     trainTrips = trips;
     users = usrs;
     filename = file;
 }
 
-// USER LOGIN
+// user login
 bool User::userLogin()
 {
     string email;
@@ -92,7 +91,7 @@ string evaluatePasswordStrength(string password)
     }
 }
 
-// USER CREATE ACCOUNT
+// user create account
 void User::userCreateAccount(string filename)
 {
     string email;
@@ -157,73 +156,105 @@ void User::userCreateAccount(string filename)
     }
 }
 
-// USER ACTIONS
-int User::searchTrip()
+// user operations
+void User::searchTrip()
 {
-    cout << "How do you want to search the trip?\n";
-    cout << "Options: [1] By route\t [2]By departure date\n";
-
-    int searchMethod;
-    cout << "Pick one (1/2): ";
-    cin >> searchMethod;
-
-    if (searchMethod != 1 && searchMethod != 2)
-        return -1;
-
-    if (searchMethod == 1)
+    try
     {
-        string src, dest;
-        cout << "Enter source city: ";
-        cin.ignore();
-        getline(cin, src);
-        cout << "Enter destination city: ";
-        getline(cin, dest);
+        cout << "How do you want to search the trip?\n";
+        cout << "Options: [1] By route\t [2]By departure date\n";
+
+        int searchMethod;
+        cout << "Pick one (1/2): ";
+        cin >> searchMethod;
+
+        if (searchMethod != 1 && searchMethod != 2)
+        {
+            cout << "Invalid input. Please try again\n";
+            return;
+        }
+        if (searchMethod == 1)
+        {
+            string src, dest;
+            cout << "Enter source city: ";
+            cin.ignore();
+            getline(cin, src);
+
+            if (!isValidCityName(src))
+            {
+                throw invalid_argument("Source city name contains invalid characters.");
+            }
+
+            cout << "Enter destination city: ";
+            getline(cin, dest);
+
+            if (!isValidCityName(dest))
+            {
+                throw invalid_argument("Destination city name contains invalid characters.");
+            }
+
+            for (int i = 0; i < (*trainTrips).size(); i++)
+                if ((*trainTrips)[i].getSource() == src && (*trainTrips)[i].getDestination() == dest)
+                    (*trainTrips)[i].tripInfo();
+
+            return;
+        }
+
+        cout << "Departure date: (dd mm yy): ";
+        TIME dep;
+        cin >> dep.day >> dep.month >> dep.year;
+
+        if (cin.fail() || !isValidDate(dep.year, dep.month, dep.day))
+        {
+            throw invalid_argument("Invalid departure date. Please enter a valid date.");
+        }
+
+        cout << "Arrival date: (dd mm yy): ";
+        TIME arr;
+        cin >> arr.day >> arr.month >> arr.year;
+
+        if (cin.fail() || !isValidDate(arr.year, arr.month, arr.day))
+        {
+            throw invalid_argument("Invalid arrival date. Please enter a valid date.");
+        }
 
         for (int i = 0; i < (*trainTrips).size(); i++)
-            if ((*trainTrips)[i].getSource() == src && (*trainTrips)[i].getDestination() == dest)
+        {
+            TIME dTime = (*trainTrips)[i].getDepartureTime();
+            TIME aTime = (*trainTrips)[i].getArrivalTime();
+
+            if (dTime.day == dep.day && dTime.month == dep.month && dTime.year == dep.year &&
+                aTime.day == arr.day && aTime.month == arr.month && aTime.year == arr.year &&
+                (*trainTrips)[i].getEmptySeats() > 0)
                 (*trainTrips)[i].tripInfo();
-
-        cout << "\n\nWhich trip do you want to reserve a seat for? (insert the tripID or -1 if you want to abort): ";
-
-        int pickedTrip;
-        cin >> pickedTrip;
-        return pickedTrip;
+        }
     }
-
-    cout << "Departure date: (dd mm yy): ";
-    TIME dep;
-    cin >> dep.day >> dep.month >> dep.year;
-
-    cout << "Arrival date: (dd mm yy): ";
-    TIME arr;
-    cin >> arr.day >> arr.month >> arr.year;
-
-    for (int i = 0; i < (*trainTrips).size(); i++)
+    catch (const invalid_argument &e)
     {
-        TIME dTime = (*trainTrips)[i].getDepartureTime();
-        TIME aTime = (*trainTrips)[i].getArrivalTime();
-
-        if (dTime.day == dep.day && dTime.month == dep.month && dTime.year == dep.year &&
-            aTime.day == arr.day && aTime.month == arr.month && aTime.year == arr.year &&
-            (*trainTrips)[i].getEmptySeats() > 0)
-            (*trainTrips)[i].tripInfo();
+        cerr << "Error: " << e.what() << endl;
     }
-
-    cout << "\n\nWhich trip do you want to reserve a seat for? (insert the tripID or -1 if you want to abort): ";
-
-    int pickedTrip;
-    cin >> pickedTrip;
-    return pickedTrip;
 }
 
 void User::bookTrip()
 {
-    int tripId = searchTrip();
+    char knowTripId;
+    cout << "Do you know the id of the trip? y/n: ";
+    cin >> knowTripId;
+
+    int pickedTrip;
+
+    if (knowTripId == 'n' || knowTripId == 'N')
+        searchTrip();
+
+    cout << "\n\nWhich trip do you want to reserve a seat for? (insert the tripID or -1 if you want to abort): ";
+
+    cin >> pickedTrip;
+
     int tripIndex;
 
     for (int i = 0; i < (*trainTrips).size(); i++)
     {
-        if ((*trainTrips)[i].getTripID() == tripId)
+        if ((*trainTrips)[i].getTripID() == pickedTrip)
         {
             tripIndex = i;
             break;

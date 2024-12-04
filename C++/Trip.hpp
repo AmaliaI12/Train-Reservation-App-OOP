@@ -51,7 +51,8 @@ public:
     int getEmptySeats();
     int getFirstSeats();
 
-    void addBookedSeat(int classType);
+    
+    void addBookedSeat(int seatType);
 
     // Display info
     void tripInfo();

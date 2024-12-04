@@ -27,7 +27,6 @@ public:
     Admin(std::vector<TrainTrip> *trips, std::unordered_map<string, string> *usrs,
           string mail, string pswrd, string out);
 
-    // crypting methods
 
     // admin login
     bool adminLogin();
@@ -38,10 +37,14 @@ public:
     void deleteTrip();
 };
 
+// crypting methods
 string generateKey(string str);
 string cipherText(string str, string extendedkey);
+
+//check functions
 bool isValidDate(int year, int month, int day);
 bool isValidCityName(string city);
 bool isValidEmail(string email);
+bool isFutureDate(TIME date);
 
 #endif
